@@ -166,14 +166,10 @@ class Network:
         print(Fore.LIGHTWHITE_EX + '下载完成! 文件路径: ' + Fore.GREEN + os.path.abspath(filepath))
     
     def _progressbar(self, cur, total):
-        #percent = '%.2f' % (cur / total)
         percent = '%.0f%%' % (cur / total * 100)
 
     
     def _download_schedule(self, a, b, c):
-        #print(a)
-        #print(b)
-        #print(c)
         per = 100.0 * a * b / c
         sys.stdout.write('\r')
         sys.stdout.write('[%-50s] %s' % ( '=' * int(math.floor(per / 2)), '%.2f%%' % per))  
@@ -219,7 +215,6 @@ class Network:
         # [av123456] 【史诗级误解】甲铁城x罪恶王冠的超同步套路剧场（吐血完整版）——.mp4
         # 时长: 12:43 | 大小: 119.0MB
         # 开始下载? (y/n):
-        # 下载中...
         
         print(Fore.CYAN + '[av%s] ' % aid + Fore.RESET + title)
         print(Fore.GREEN + '时长: ' + Fore.RESET + length_str + 

@@ -66,7 +66,6 @@ class PyBilibili(cmd.Cmd):
             network.download_danmu(args[1], output)
         elif action == 'video':
             #download video 5551896 -q 2 -t mp4 -o video.mp4
-            #download video 5551896 --quality 2 --type mp4 --output video.mp4
             argparser = MyArgparser(args)
             aid = args[1]
 
@@ -107,7 +106,7 @@ class PyBilibili(cmd.Cmd):
         args = arg.split(' ')
         #[@Bilibili]: ranking [--recent] all all 3   
         if len(args) == 1:
-            #args = ['']
+            #无参数时args = ['']
             ranking_list_name = 'all'
             category_name = 'all'
             scope = 3
