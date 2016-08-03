@@ -12,6 +12,8 @@
 import os
 import cmd
 import sys
+import dicts
+import webbrowser
 from bs4 import BeautifulSoup
 from colorama import init, Fore
 from network import Network
@@ -92,7 +94,7 @@ class PyBilibili(cmd.Cmd):
             network.download_video(aid, quality, type, output)
 
     def help_download(self):
-        print('''download: download [danmu|video] aid [arguments..]
+        print('''download: download [danmu|video] <aid> [arguments..]
 \tdanmu: 下载某个av号下xml格式的弹幕文件
 \targuments:
 \t\t-o --output \t输出文件名\n
@@ -141,7 +143,29 @@ class PyBilibili(cmd.Cmd):
 \t时间范围\t1, 3, 7, 30
 \t--recent\t近期投稿, 否则为全部投稿''')
 
-
+    def do_open(self, arg):
+        args = arg.split(' ')
+        if args[0] == '':
+            webbrowser.open('http://www.bilibili.com')
+        elif args[0] in dicts.link_mapping:
+            webbrowser.open(dicts.link_mapping[args[0]])
+        elif args[0] == 'video':
+            aid = args[1]
+            if aid[:2] == 'av':
+                aid = args[2:]
+            webbrowser.open('http://www.bilibili.com/video/av%s' % aid)
+        elif args[0] == 'people':
+            uid = args[1]
+            webbrowser.open('http://space.bilibili.com/%s/#!/index' % uid)
+        elif args[0] == 'live':
+            id = args[1]
+            webbrowser.open('http://live.bilibili.com/%s' % id)
+            
+    
+    def help_open(self):
+        print('''open: open [分区名|功能名|video|people|live] [av号|用户id|直播间id]
+\t用默认浏览器打开某个分区|功能|视频|用户|直播间的页面
+\t不加参数即打开bilibili主页''')
 
     def do_quit(self, arg):
         sys.exit(1)
