@@ -9,15 +9,16 @@
     :license: BSD
 
 """
+from bs4 import BeautifulSoup
+from colorama import init, Fore
+from network import Network
+from myargparser import MyArgparser
 import os
 import cmd
 import sys
 import dicts
 import webbrowser
-from bs4 import BeautifulSoup
-from colorama import init, Fore
-from network import Network
-from myargparser import MyArgparser
+import platform
 
 network = Network()
 
@@ -177,7 +178,10 @@ class PyBilibili(cmd.Cmd):
         print('q: quit the program')
 
 def start():
-    os.system('cls')
+    if platform.system() == 'Windows':
+        os.system('cls')
+    elif platform.system() == 'Linux':
+        os.system('clear')
     init(autoreset=True)
     print(Fore.LIGHTBLUE_EX + 
 """      ~))))))            )))))
