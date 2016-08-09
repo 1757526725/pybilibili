@@ -124,7 +124,7 @@ class Network:
               Fore.GREEN + '地址: ' + Fore.RESET + '%s ' % place + '\n', output, filename)
         self._print_or_output(Fore.GREEN + '投稿视频: ' + Fore.RESET + '%d ' % json_video_list['data']['count'] + Fore.LIGHTWHITE_EX + '| ' + Fore.LIGHTRED_EX + '关注: ' + Fore.RESET + '%d ' % data['friend'] + Fore.LIGHTRED_EX + '粉丝: ' + Fore.RESET + '%d' % data['fans'] + '\n', output, filename)
 
-    def print_ranking_list(self, ranking_name='all', category_fenqu='all', is_recent=False, scope=3, filename='', newfile=False):
+    def print_ranking_list(self, ranking_name, category_fenqu, is_recent, scope, filename, newfile):
         try:
             ranking_list_name = dicts.ranking_list_name[ranking_name]
             category_name = dicts.ranking_category_name[category_fenqu]
@@ -135,7 +135,7 @@ class Network:
             scope = '0' + scope
 
         output = False
-        if filename != '':
+        if filename is not None:
             output = True     
             if newfile:
                 self._clear_file(filename)    
@@ -209,7 +209,7 @@ class Network:
         if per >= 100:
             sys.stdout.write('\n')
 
-    def download_video(self, aid = '', quality = 2, type = 'hdmp4', output = ''):
+    def download_video(self, aid, quality, type, output):
         """
             quality: 1=流畅 2=高清
             type: mp4 / flv

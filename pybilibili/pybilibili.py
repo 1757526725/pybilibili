@@ -117,10 +117,6 @@ class PyBilibili(cmd.Cmd):
         args = arg.split(' ')
         #[@Bilibili]: ranking all all 3 --recent -o ranking.txt
         parser = MyArgparser(args)
-        filename = ''; newfile = False
-        if parser.exists(['-o', '--output']):
-            filename = parser.get(['-o', '--output'])
-            newfile = parser.exists(['-n', '--new'])
         
         if len(args) == 1:
             #无参数时args = ['']
@@ -148,7 +144,7 @@ class PyBilibili(cmd.Cmd):
            print('Error: The scope can only be 1, 3 or 7')
            return
         #打印排行榜
-        network.print_ranking_list(ranking_list_name, category_name, is_recent, scope, filename, newfile)
+        network.print_ranking_list(ranking_list_name, category_name, is_recent, scope, parser.get(['-o', '--output']), parser.exists(['-n', '--new']))
 
     def help_ranking(self):
         print('''ranking: ranking [排行榜名 分区名 时间范围] [arguments..]
@@ -216,17 +212,14 @@ def start():
 )))))))))))))))))))))))))))))))))))
   1))))))))))))))))))))))))))))))1 
 """)
-    
     web_online = network.get_web_online()
     print("当前在线人数: %s" % web_online)
-
     print("欢迎使用Bilibili终端版  ( ゜- ゜)つロ  乾杯~\nAuthor: Big Mad Dog | Version: 0.1\n")
 
     
 
 def main():
     start()
-
     PyBilibili().cmdloop()
 
 if __name__ == "__main__":
