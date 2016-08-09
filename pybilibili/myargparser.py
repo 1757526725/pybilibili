@@ -13,9 +13,15 @@ class MyArgparser(object):
     def __init__(self, args = []):
         self.args = args
 
-    def get_arg(self, arg_names = []):
+    def get(self, arg_names = []):
         for arg in arg_names:
             if arg in self.args:
                 return self.args[self.args.index(arg) + 1]        
         #没有此参数
         return None
+
+    def exists(self, arg_names = []):
+        for arg in arg_names:
+            if arg in self.args:
+                return True
+        return False

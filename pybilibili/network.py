@@ -9,7 +9,6 @@
     :license: BSD
 
 """
-from __future__ import division
 from bs4 import BeautifulSoup
 from colorama import Fore, Style
 import dicts
@@ -28,10 +27,25 @@ class Network:
         self.homepage_cont = self.homepage_res.content
         self.homepage_soup = BeautifulSoup(self.homepage_cont, 'html.parser', from_encoding='utf-8')
 
+    def _clear_file(self, filename):
+        if os.path.exists(filename):
+            os.remove(filename)
+   
+    def _print_or_output(self, content, output, filename):
+        if output == False:
+            print(content)
+        else:
+            for f in vars(Fore).items():
+                content = content.replace(f[1], '')
+            file = open(filename, 'a')
+            file.write(content)
+            file.close()
+                
+
     def get_web_online(self):
         return self.homepage_soup.find('a', href='/video/online.html').em.string
 
-    def print_video_stat(self, aid):
+    def print_video_stat(self, aid, filename, newfile):
         json_res = requests.get('http://api.bilibili.com/archive_stat/stat?aid=%s' % aid)
         json_str = json_res.content
         json_list = json.loads(json_str.decode('utf-8'))
@@ -42,30 +56,37 @@ class Network:
         html_soup = BeautifulSoup(html_cont, 'html.parser', from_encoding='utf-8')
         title = html_soup.find('div', class_='v-title').string
         author = html_soup.find('div', class_='usname').a.string
-        time = html_soup.find('time', itemprop="startDate").i.string
+        time_ = html_soup.find('time', itemprop="startDate").i.string
         category_list = html_soup.find_all('a', rel='v:url')
         category = str()
+
+        output = False
+        if filename is not None:
+            output = True
+            if newfile:
+                self._clear_file(filename)
+         
         for a in category_list[1:]:
             category += a.string
             if category_list.index(a) != len(category_list) - 1:
                 category += ' > '
-        print(Fore.CYAN + '[av%s] ' % aid + 
+        self._print_or_output(Fore.CYAN + '[av%s] ' % aid + 
               Fore.RESET + '%s ' % title + 
-              Fore.YELLOW + '作者: ' + Fore.RESET + '%s' % author)
-        print(Fore.WHITE + time + Fore.RESET + 
-              ' | ' + Fore.WHITE + category)
-        print(Fore.GREEN + '播放: ' + Fore.RESET + '%d ' % data['view'] + 
+              Fore.YELLOW + '作者: ' + Fore.RESET + '%s' % author + '\n', output, filename)
+        self._print_or_output(Fore.WHITE + time_ + Fore.RESET + 
+              ' | ' + Fore.WHITE + category + '\n', output, filename)
+        self._print_or_output(Fore.GREEN + '播放: ' + Fore.RESET + '%d ' % data['view'] + 
               Fore.GREEN + '弹幕: ' + Fore.RESET + '%d ' % data['danmaku'] + 
               Fore.GREEN + '评论: ' + Fore.RESET + '%d ' % data['reply'] + 
               Fore.GREEN + '收藏: ' + Fore.RESET + '%d ' % data['favorite'] + 
               Fore.GREEN + '硬币: ' + Fore.RESET + '%d ' % data['coin'] + 
-              Fore.GREEN + '分享: ' + Fore.RESET + '%d ' % data['share']) 
+              Fore.GREEN + '分享: ' + Fore.RESET + '%d ' % data['share'], output, filename) 
 
         # [av123456] 感觉身体被掏空by彩虹室内合唱团 作者:上海彩虹室内合唱团
         # 2016-07-27 10:07 | 音乐 > 原创音乐
         # 播放:1407731 弹幕:4167 评论:15916 收藏:15916 硬币:21166 分享:8637
 
-    def print_people_info(self, uid):
+    def print_people_info(self, uid, filename, newfile):
         req_info = requests.get('http://space.bilibili.com/ajax/member/GetInfo?mid=%s' % uid)
         json_info_str = req_info.content
         json_info_list = json.loads(json_info_str.decode('utf-8'))
@@ -82,21 +103,28 @@ class Network:
         if place == '':
             place = '未填写'
 
-        print(Fore.CYAN + '[%s] ' % uid + 
+        sign = data['sign']
+        if sign == '':
+            sign = '无简介'
+        
+        output = False
+        if filename is not None:
+            output = True
+            if newfile:
+                self._clear_file(filename)   
+        
+        self._print_or_output(Fore.CYAN + '[%s] ' % uid + 
               Fore.RESET + '%s ' % data['name'] + 
               Fore.LIGHTYELLOW_EX + 'Lv%s ' % data['level_info']['current_level'] + 
               Fore.LIGHTWHITE_EX + '| ' + 
-              Fore.RESET + '%s' % data['sign'])
-        print(Fore.GREEN + '性别: ' + Fore.RESET + '%s ' % data['sex'] + 
+              Fore.RESET + '%s' % sign + '\n', output, filename)
+        self._print_or_output(Fore.GREEN + '性别: ' + Fore.RESET + '%s ' % data['sex'] + 
               Fore.GREEN + '注册于: ' + Fore.RESET + '%d-%d-%d ' % (regtime[0], regtime[1], regtime[2]) + 
               Fore.GREEN + '生日: ' + Fore.RESET + '%s ' % data['birthday'] + 
-              Fore.GREEN + '地址: ' + Fore.RESET + '%s ' % place)
-        print(Fore.GREEN + '投稿视频: ' + Fore.RESET + '%d ' % json_video_list['data']['count'] + 
-              Fore.LIGHTWHITE_EX + '| ' + 
-              Fore.LIGHTRED_EX + '关注: ' + Fore.RESET + '%d ' % data['friend'] + 
-              Fore.LIGHTRED_EX + '粉丝: ' + Fore.RESET + '%d' % data['fans'])
+              Fore.GREEN + '地址: ' + Fore.RESET + '%s ' % place + '\n', output, filename)
+        self._print_or_output(Fore.GREEN + '投稿视频: ' + Fore.RESET + '%d ' % json_video_list['data']['count'] + Fore.LIGHTWHITE_EX + '| ' + Fore.LIGHTRED_EX + '关注: ' + Fore.RESET + '%d ' % data['friend'] + Fore.LIGHTRED_EX + '粉丝: ' + Fore.RESET + '%d' % data['fans'] + '\n', output, filename)
 
-    def print_ranking_list(self, ranking_name='all' , category_fenqu='all', is_recent=False, scope=3):
+    def print_ranking_list(self, ranking_name='all', category_fenqu='all', is_recent=False, scope=3, filename='', newfile=False):
         try:
             ranking_list_name = dicts.ranking_list_name[ranking_name]
             category_name = dicts.ranking_category_name[category_fenqu]
@@ -105,6 +133,12 @@ class Network:
             pass
         if is_recent == True:
             scope = '0' + scope
+
+        output = False
+        if filename != '':
+            output = True     
+            if newfile:
+                self._clear_file(filename)    
 
         res = requests.get('http://www.bilibili.com/index/rank/%s-%s-%s.json' % (ranking_list_name, scope, category_name))
         json_str = res.content
@@ -115,18 +149,18 @@ class Network:
             # 1: [av123456] 【多素材】解开只穿一件衬衣的扣子 综合评分: 1147182
             #       播放: 666191 评论: 4160 作者: 科学超电磁炮F
             try:
-                print(Fore.RED + "%d: " % ranking + 
+                self._print_or_output(Fore.RED + "%d: " % ranking + 
                       Fore.CYAN + "[av%d] " % video['aid'] + 
                       Fore.RESET + "%s " % video['title'] + 
-                      Fore.YELLOW + "综合评分: %d" % video['pts'])
-                print(Fore.GREEN + "\t播放: " + Fore.RESET + "%d" % video['play'] + 
+                      Fore.YELLOW + "综合评分: %d" % video['pts'] + '\n' + 
+                      Fore.GREEN + "\t播放: " + Fore.RESET + "%d" % video['play'] + 
                       Fore.GREEN + " 评论: " + Fore.RESET + "%d" % video['video_review'] + 
-                      Fore.GREEN + " 作者: " + Fore.RESET + video['author'])
+                      Fore.GREEN + " 作者: " + Fore.RESET + video['author'] + '\n', output, filename)
             except UnicodeEncodeError:
                 pass
             ranking += 1
 
-    def download_danmu(self, aid, filepath = ''):
+    def download_danmu(self, aid, filepath):
         req_video = requests.get('http://www.bilibili.com/video/av%s/' % aid)
         html = req_video.content
         soup = BeautifulSoup(html, 'html.parser', from_encoding='utf-8')
@@ -164,11 +198,9 @@ class Network:
         f.close()
 
         print(Fore.LIGHTWHITE_EX + '下载完成! 文件路径: ' + Fore.GREEN + os.path.abspath(filepath))
-    
-    def _progressbar(self, cur, total):
-        percent = '%.0f%%' % (cur / total * 100)
 
-    
+
+ 
     def _download_schedule(self, a, b, c):
         per = 100.0 * a * b / c
         sys.stdout.write('\r')
@@ -226,5 +258,3 @@ class Network:
             #Download
             urllib.request.urlretrieve(download_link, output, self._download_schedule)
             print(Fore.LIGHTWHITE_EX + '下载成功! 文件路径: ' + Fore.GREEN +os.path.abspath(output))
-        else:
-            return
