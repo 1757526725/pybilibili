@@ -40,6 +40,7 @@ class Network:
             file = open(filename, 'a')
             file.write(content)
             file.close()
+            print(Fore.LIGHTWHITE_EX + '下载完成! 文件路径: ' + Fore.GREEN + os.path.abspath(filename))
                 
 
     def get_web_online(self):
@@ -160,7 +161,7 @@ class Network:
                 pass
             ranking += 1
 
-    def download_danmu(self, aid, filepath):
+    def download_danmu(self, aid, filename):
         req_video = requests.get('http://www.bilibili.com/video/av%s/' % aid)
         html = req_video.content
         soup = BeautifulSoup(html, 'html.parser', from_encoding='utf-8')
@@ -174,10 +175,10 @@ class Network:
         req_xml = requests.get('http://comment.bilibili.com/%s.xml' % cid)
         xml = req_xml.content
 
-        if filepath == '':
-            filepath = '弹幕_av%s.xml' % aid
+        if filename == '':
+            filename = '弹幕_av%s.xml' % aid
 
-        f = open(filepath, 'w', encoding = 'utf-8')
+        f = open(filename, 'w', encoding = 'utf-8')
         try:
             f.writelines(xml.decode('utf-8'))
         except UnicodeEncodeError:
@@ -187,17 +188,17 @@ class Network:
         result = ''
 
         #删除空行
-        f = open(filepath, 'r', encoding = 'utf-8')
+        f = open(filename, 'r', encoding = 'utf-8')
         lines = f.readlines()
         for li in lines:
             if li.split():
                 result += li
         f.close()
-        f = open(filepath, 'w', encoding = 'utf-8')
+        f = open(filename, 'w', encoding = 'utf-8')
         f.writelines(result)
         f.close()
 
-        print(Fore.LIGHTWHITE_EX + '下载完成! 文件路径: ' + Fore.GREEN + os.path.abspath(filepath))
+        print(Fore.LIGHTWHITE_EX + '下载完成! 文件路径: ' + Fore.GREEN + os.path.abspath(filename))
 
 
  
@@ -257,4 +258,4 @@ class Network:
         if confirm == 'y':
             #Download
             urllib.request.urlretrieve(download_link, output, self._download_schedule)
-            print(Fore.LIGHTWHITE_EX + '下载成功! 文件路径: ' + Fore.GREEN +os.path.abspath(output))
+            print(Fore.LIGHTWHITE_EX + '下载成功! 文件路径: ' + Fore.GREEN + os.path.abspath(output))
